@@ -24,8 +24,8 @@ public class Robot extends TimedRobot {
   WPI_TalonSRX values need to be changed to what they are signified as on the talon for the robot
   */
   WPI_TalonSRX _rghtFront = new WPI_TalonSRX(1);
-    WPI_TalonSRX _rghtFollower = new WPI_TalonSRX(0);
-    WPI_TalonSRX _leftFront = new WPI_TalonSRX(1);
+    WPI_TalonSRX _rghtFollower = new WPI_TalonSRX(1);
+    WPI_TalonSRX _leftFront = new WPI_TalonSRX(0);
     WPI_TalonSRX _leftFollower = new WPI_TalonSRX(0);
   
   DifferentialDrive _diffDrive = new DifferentialDrive(_leftFront, _rghtFront);
@@ -46,10 +46,10 @@ public class Robot extends TimedRobot {
     m_rightStick = new Joystick(1);
     
       //factory default values 
-        _rghtFront.configFactoryDefault();
-        _rghtFollower.configFactoryDefault();
-        _leftFront.configFactoryDefault();
-        _leftFollower.configFactoryDefault();
+        _rghtFront.configFactoryDefault(1);
+        _rghtFollower.configFactoryDefault(0);
+        _leftFront.configFactoryDefault(1);
+        _leftFollower.configFactoryDefault(0);
     
     //set up followers where does one find this?
         _rghtFollower.follow(_rghtFront);
@@ -95,7 +95,7 @@ public class Robot extends TimedRobot {
             turn = 0;
         }
 
-        // states forward as the fist variable and turn as the second
+       
         _diffDrive.arcadeDrive(forw, turn);
 
         /*
