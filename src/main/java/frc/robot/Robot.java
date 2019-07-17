@@ -7,6 +7,14 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.Faults;
+import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -21,15 +29,27 @@ public class Robot extends TimedRobot {
   private Joystick m_leftStick;
   private Joystick m_rightStick;
 
-  @Override
-  public void robotInit() {
-    m_myRobot = new DifferentialDrive(new PWMVictorSPX(0), new PWMVictorSPX(1));
-    m_leftStick = new Joystick(0);
-    m_rightStick = new Joystick(1);
-  }
+  WPI_TalonSRX _rghtFront = new WPI_TalonSRX(1);
+  WPI_VictorSRX _rghtFollower = new WPI_VictorSRX(1);
+  WPI_TalonSRX _leftFront = new WPI_TalonSRX(0);
+  WPI_VictorSRX _leftFollower = new WPI_VictorSRX(0);
 
-  @Override
-  public void teleopPeriodic() {
-    m_myRobot.tankDrive(m_leftStick.getY(), m_rightStick.getY());
+  DifferentialDrive _diffDrive = new DifferentialDrive(_leftFront, _rghtFront);
+
+  Joystick _joystick = new Joystick(0);
+
+    public void teleopPeriodic() {
+      double forw = -1 * _joystick.getRawAxis(1);
+      double turn = +1 * _joystick.getRawAxis(2);
+
+        if (Math.abs(forw) < 0.10) {
+          forw = 0;
+      }
+      if (Math.abs(turn) < 0.10) {
+          turn = 0;
+      }
+
+      _diffDrive.arcadeDrive(forw, turn);
+
   }
 }
