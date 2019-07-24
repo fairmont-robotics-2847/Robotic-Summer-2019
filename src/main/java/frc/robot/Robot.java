@@ -7,6 +7,11 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.Faults;
+import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -24,9 +29,9 @@ public class Robot extends TimedRobot {
   WPI_TalonSRX values need to be changed to what they are signified as on the talon for the robot
   */
   WPI_TalonSRX _rghtFront = new WPI_TalonSRX(1);
-    WPI_TalonSRX _rghtFollower = new WPI_TalonSRX(1);
+    WPI_VictorSPX _rghtFollower = new WPI_VictorSPX(1);
     WPI_TalonSRX _leftFront = new WPI_TalonSRX(0);
-    WPI_TalonSRX _leftFollower = new WPI_TalonSRX(0);
+    WPI_VictorSPX _leftFollower = new WPI_VictorSPX(0);
   
   DifferentialDrive _diffDrive = new DifferentialDrive(_leftFront, _rghtFront);
   
@@ -35,9 +40,9 @@ public class Robot extends TimedRobot {
   Faults _faults_L = new Faults();
     Faults _faults_R = new Faults();
   
-  private DifferentialDrive m_myRobot;
-  private Joystick m_leftStick;
-  private Joystick m_rightStick;
+   DifferentialDrive m_myRobot;
+   Joystick m_leftStick;
+   Joystick m_rightStick;
 
   @Override
   public void robotInit() {
@@ -129,4 +134,5 @@ public class Robot extends TimedRobot {
         if (btn1) {
             System.out.println(work);
   }
+}
 }
