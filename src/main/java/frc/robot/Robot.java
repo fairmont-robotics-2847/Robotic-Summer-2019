@@ -29,7 +29,7 @@ public class Robot extends TimedRobot {
   
   DifferentialDrive _diffDrive = new DifferentialDrive(_leftMaster, _rightMaster);
   
-  Joystick _joystick = new Joystick(0);
+  Joystick _gamepad = new Joystick(0);
 
   DifferentialDrive m_myRobot;
   Joystick m_leftStick;
@@ -41,7 +41,7 @@ public class Robot extends TimedRobot {
   boolean _firstCall = false;
   boolean _state = false;
 
-  MotionProfileExample  _motProfExample = new MotionProfileExample(_tempMaster);
+  MotionProfile  _motProfExample = new MotionProfile(_tempMaster);
 
   enum ButtonEvent {
     ButtonOff, 
@@ -221,11 +221,11 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     m_myRobot.tankDrive(m_leftStick.getY(), m_rightStick.getY());
 
-        double forward = -1 * _joystick.getRawAxis(1); 
-        double turn = +1 * _joystick.getRawAxis(2); 
+        double forward = -1 * _gamepad.getRawAxis(1); 
+        double turn = +1 * _gamepad.getRawAxis(2); 
         forward = Deadband(forward) * 0.5;
         turn = Deadband(turn) * 0.5;
-        _diffDrive.arcadeDrive(forw, turn);
+        _diffDrive.arcadeDrive(forward, turn);
 
         //Code from taken from Example
         
