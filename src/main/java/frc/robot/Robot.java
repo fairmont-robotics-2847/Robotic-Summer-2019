@@ -23,7 +23,7 @@ public class Robot extends TimedRobot {
   WPI_TalonSRX _rightMaster = new WPI_TalonSRX(1);
   WPI_VictorSPX _rghtFollower = new WPI_VictorSPX(1);
   WPI_TalonSRX _leftMaster = new WPI_TalonSRX(0);
-  WPI_VictorSPX _leftFollower = new WPI_VictorSPX(0);
+  WPI_VictorSPX _tempMaster = new WPI_VictorSPX(0);
 
   PigeonIMU _pidgey = new PigeonIMU(3);
   
@@ -59,15 +59,15 @@ public class Robot extends TimedRobot {
         _rightMaster.configFactoryDefault(1);
         _rghtFollower.configFactoryDefault(0);
         _leftMaster.configFactoryDefault(1);
-        _leftFollower.configFactoryDefault(0);
+       //_leftFollower.configFactoryDefault(0);
 
         _rghtFollower.follow(_rightMaster);
-        _leftFollower.follow(_leftMaster);
+        //_leftFollower.follow(_leftMaster);
 
         _rightMaster.setInverted(true);
         _leftMaster.setInverted(false);
         _rghtFollower.setInverted(InvertType.FollowMaster);
-        _leftFollower.setInverted(InvertType.FollowMaster);
+        //_leftFollower.setInverted(InvertType.FollowMaster);
 
         _rightMaster.setSensorPhase(true);
         _leftMaster.setSensorPhase(true);
