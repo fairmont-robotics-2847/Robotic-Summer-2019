@@ -23,7 +23,8 @@ public class Robot extends TimedRobot {
   WPI_TalonSRX _rightMaster = new WPI_TalonSRX(1);
   WPI_VictorSPX _rghtFollower = new WPI_VictorSPX(1);
   WPI_TalonSRX _leftMaster = new WPI_TalonSRX(0);
-  WPI_VictorSPX _tempMaster = new WPI_VictorSPX(0);
+	WPI_VictorSPX _leftFollower = new WPI_VictorSPX(0);
+	WPI_VictorSPX _tempMaster = new WPI_VictorSPX(6);
 
   PigeonIMU _pidgey = new PigeonIMU(3);
   
@@ -32,8 +33,7 @@ public class Robot extends TimedRobot {
   Joystick _gamepad = new Joystick(0);
 
   DifferentialDrive m_myRobot;
-  Joystick m_leftStick;
-  Joystick m_rightStick;
+
 
   boolean[] _btns = new boolean[Constants.kNumButtonsPlusOne];
   boolean[] btns = new boolean[Constants.kNumButtonsPlusOne];
@@ -53,30 +53,25 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_myRobot = new DifferentialDrive(new PWMVictorSPX(0), new PWMVictorSPX(1));
-    m_leftStick = new Joystick(0);
-    m_rightStick = new Joystick(1);
 
-        _rightMaster.configFactoryDefault(1);
-        _rghtFollower.configFactoryDefault(0);
-        _leftMaster.configFactoryDefault(1);
-       //_leftFollower.configFactoryDefault(0);
+			_rightMaster.configFactoryDefault(100);
+			_rghtFollower.configFactoryDefault(100);
+			_leftMaster.configFactoryDefault(100);
+			_leftFollower.configFactoryDefault(100);
 
-        _rghtFollower.follow(_rightMaster);
-        //_leftFollower.follow(_leftMaster);
+			_rghtFollower.follow(_rightMaster);
+			_leftFollower.follow(_leftMaster);
 
-        _rightMaster.setInverted(true);
-        _leftMaster.setInverted(false);
-        _rghtFollower.setInverted(InvertType.FollowMaster);
-        //_leftFollower.setInverted(InvertType.FollowMaster);
+			_rightMaster.setInverted(true);
+			_leftMaster.setInverted(false);
+			_rghtFollower.setInverted(InvertType.FollowMaster);
+			_leftFollower.setInverted(InvertType.FollowMaster);
 
-        _rightMaster.setSensorPhase(true);
-        _leftMaster.setSensorPhase(true);
+			_rightMaster.setSensorPhase(true);
+			_leftMaster.setSensorPhase(true);
 
-        _diffDrive.setRightSideInverted(false);
+			_diffDrive.setRightSideInverted(false);
   }
-
-    //Class from Example
-    //Replace tempMaster
 
   @Override
   public void teleopInit(){
@@ -89,7 +84,8 @@ public class Robot extends TimedRobot {
 		_tempMaster.configFactoryDefault();
 		_pidgey.configFactoryDefault();
 
-		_rightMaster.setNeutralMode(NeutralMode.Brake);
+		_rightMaster.setNeutralMode(NeutralMode.Coast);
+		_leftMaster.setNeutralMode(NeutralMode.Coast);
 		_tempMaster.setNeutralMode(NeutralMode.Brake);
 		
 		/** Feedback Sensor Configuration */
@@ -106,10 +102,10 @@ public class Robot extends TimedRobot {
 												Constants.kTimeoutMs);						// Configuration Timeout
 		
 		// /* Configure the Pigeon IMU to the other Remote Slot on the Right Talon */
-		// _rightMaster.configRemoteFeedbackFilter(_pidgey.getDeviceID(),
-		// 										RemoteSensorSource.Pigeon_Yaw,
-		// 										Constants.REMOTE_1,	
-		// 										Constants.kTimeoutMs);
+		 _rightMaster.configRemoteFeedbackFilter(_pidgey.getDeviceID(),
+		 										RemoteSensorSource.Pigeon_Yaw,
+		 										Constants.REMOTE_1,	
+		 										Constants.kTimeoutMs);
 		
 		/* Setup Sum signal to be used for Distance */
 		_rightMaster.configSensorTerm(SensorTerm.Sum0, FeedbackDevice.RemoteSensor0, Constants.kTimeoutMs);	// Feedback Device of Remote Talon
@@ -126,14 +122,14 @@ public class Robot extends TimedRobot {
 														Constants.kTimeoutMs);		// Configuration Timeout
 		
 		// /* Configure Remote Slot 1 [Pigeon IMU's Yaw] to be used for Auxiliary PID Index */
-		// _rightMaster.configSelectedFeedbackSensor(	FeedbackDevice.RemoteSensor1,
-		// 											Constants.PID_TURN,
-		// 											Constants.kTimeoutMs);
+		 _rightMaster.configSelectedFeedbackSensor(	FeedbackDevice.RemoteSensor1,
+		 											Constants.PID_TURN,
+		 											Constants.kTimeoutMs);
 		
 		// /* Scale the Feedback Sensor using a coefficient (Configured for 3600 units of resolution) */
-		// _rightMaster.configSelectedFeedbackCoefficient(	1,
-		// 												Constants.PID_TURN,
-		// 												Constants.kTimeoutMs);
+		 _rightMaster.configSelectedFeedbackCoefficient(	1,
+		 												Constants.PID_TURN,
+		 												Constants.kTimeoutMs);
 
 		_tempMaster.configRemoteFeedbackFilter(_rightMaster.getDeviceID(),
 												RemoteSensorSource.TalonSRX_SelectedSensor,
@@ -219,16 +215,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    m_myRobot.tankDrive(m_leftStick.getY(), m_rightStick.getY());
-
         double forward = -1 * _gamepad.getRawAxis(1); 
         double turn = +1 * _gamepad.getRawAxis(2); 
         forward = Deadband(forward) * 0.5;
         turn = Deadband(turn) * 0.5;
         _diffDrive.arcadeDrive(forward, turn);
 
-        //Code from taken from Example
-        
 		    ButtonEvent bExecuteAction = ButtonEvent.ButtonOff;
         getButtons(btns, _gamepad);	
 
@@ -254,7 +246,7 @@ public class Robot extends TimedRobot {
         if (_firstCall)
           System.out.println("This is a basic arcade drive.\n");
         
-        _tempMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, +turn);
+        _leftMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, +turn);
         _rightMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn);
       }else{
         boolean bMoveForward = (forward >= 0) ? true : false;
