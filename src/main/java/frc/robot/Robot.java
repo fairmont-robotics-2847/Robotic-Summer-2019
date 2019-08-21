@@ -24,7 +24,6 @@ public class Robot extends TimedRobot {
   WPI_VictorSPX _rghtFollower = new WPI_VictorSPX(1);
   WPI_TalonSRX _leftMaster = new WPI_TalonSRX(0);
 	WPI_VictorSPX _leftFollower = new WPI_VictorSPX(0);
-	WPI_VictorSPX _tempMaster = new WPI_VictorSPX(6);
 
   PigeonIMU _pidgey = new PigeonIMU(3);
   
@@ -41,7 +40,7 @@ public class Robot extends TimedRobot {
   boolean _firstCall = false;
   boolean _state = false;
 
-  MotionProfile  _motProfExample = new MotionProfile(_tempMaster);
+  MotionProfile  _motProfExample = new MotionProfile(_rightMaster);
 
   enum ButtonEvent {
     ButtonOff, 
@@ -77,17 +76,14 @@ public class Robot extends TimedRobot {
   public void teleopInit(){
 		_rightMaster.set(ControlMode.PercentOutput, 0);
 		_leftMaster.set(ControlMode.PercentOutput,  0);
-		_tempMaster.set(ControlMode.PercentOutput, 0);
 
 		_rightMaster.configFactoryDefault();
 		_leftMaster.configFactoryDefault();
-		_tempMaster.configFactoryDefault();
 		_pidgey.configFactoryDefault();
 
 		_rightMaster.setNeutralMode(NeutralMode.Coast);
 		_leftMaster.setNeutralMode(NeutralMode.Coast);
-		_tempMaster.setNeutralMode(NeutralMode.Brake);
-		
+
 		/** Feedback Sensor Configuration */
 		
 		/* Configure the left Talon's selected sensor as local QuadEncoder */
@@ -130,64 +126,49 @@ public class Robot extends TimedRobot {
 		 _rightMaster.configSelectedFeedbackCoefficient(	1,
 		 												Constants.PID_TURN,
 		 												Constants.kTimeoutMs);
-
-		_tempMaster.configRemoteFeedbackFilter(_rightMaster.getDeviceID(),
-												RemoteSensorSource.TalonSRX_SelectedSensor,
-												Constants.REMOTE_0);
-		_tempMaster.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0,
-												Constants.PID_PRIMARY,
-												Constants.kTimeoutMs);
-
-		_tempMaster.configRemoteFeedbackFilter(_pidgey.getDeviceID(),
-												RemoteSensorSource.Pigeon_Yaw,
-												Constants.REMOTE_1,	
-												Constants.kTimeoutMs);
-		_tempMaster.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor1,
-												Constants.PID_TURN,
-												Constants.kTimeoutMs);
 		
-		_tempMaster.setInverted(false);
+		_rightMaster.setInverted(false);
 		_leftMaster.setSensorPhase(true);
 		_rightMaster.setInverted(true);
 		_rightMaster.setSensorPhase(true);
 
-		_tempMaster.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 20, Constants.kTimeoutMs);
-		_tempMaster.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 20, Constants.kTimeoutMs);
-		_tempMaster.setStatusFramePeriod(StatusFrame.Status_14_Turn_PIDF1, 20, Constants.kTimeoutMs);
-		_tempMaster.setStatusFramePeriod(StatusFrame.Status_10_Targets, 20, Constants.kTimeoutMs);
+		_rightMaster.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 20, Constants.kTimeoutMs);
+		_rightMaster.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 20, Constants.kTimeoutMs);
+		_rightMaster.setStatusFramePeriod(StatusFrame.Status_14_Turn_PIDF1, 20, Constants.kTimeoutMs);
+		_rightMaster.setStatusFramePeriod(StatusFrame.Status_10_Targets, 20, Constants.kTimeoutMs);
 		_leftMaster.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5, Constants.kTimeoutMs);
 
 		_rightMaster.configNeutralDeadband(Constants.kNeutralDeadband, Constants.kTimeoutMs);
-		_tempMaster.configNeutralDeadband(Constants.kNeutralDeadband, Constants.kTimeoutMs);
+		_rightMaster.configNeutralDeadband(Constants.kNeutralDeadband, Constants.kTimeoutMs);
 		
 		/* Motion Magic Configurations */
-		_tempMaster.configMotionAcceleration(2000, Constants.kTimeoutMs);
-		_tempMaster.configMotionCruiseVelocity(2000, Constants.kTimeoutMs);
+		_rightMaster.configMotionAcceleration(2000, Constants.kTimeoutMs);
+		_rightMaster.configMotionCruiseVelocity(2000, Constants.kTimeoutMs);
 
 		/**
 		 * Max out the peak output (for all modes).  
 		 * However you can limit the output of a given PID object with configClosedLoopPeakOutput().
 		 */
-		_tempMaster.configPeakOutputForward(+1.0, Constants.kTimeoutMs);
-		_tempMaster.configPeakOutputReverse(-1.0, Constants.kTimeoutMs);
+		_rightMaster.configPeakOutputForward(+1.0, Constants.kTimeoutMs);
+		_rightMaster.configPeakOutputReverse(-1.0, Constants.kTimeoutMs);
 		_rightMaster.configPeakOutputForward(+1.0, Constants.kTimeoutMs);
 		_rightMaster.configPeakOutputReverse(-1.0, Constants.kTimeoutMs);
 
 		/* FPID Gains for Motion Profile servo */
-		_tempMaster.config_kP(Constants.kSlot_MotProf, Constants.kGains_MotProf.kP, Constants.kTimeoutMs);
-		_tempMaster.config_kI(Constants.kSlot_MotProf, Constants.kGains_MotProf.kI, Constants.kTimeoutMs);
-		_tempMaster.config_kD(Constants.kSlot_MotProf, Constants.kGains_MotProf.kD, Constants.kTimeoutMs);
-		_tempMaster.config_kF(Constants.kSlot_MotProf, Constants.kGains_MotProf.kF, Constants.kTimeoutMs);
-		_tempMaster.config_IntegralZone(Constants.kSlot_MotProf, Constants.kGains_MotProf.kIzone, Constants.kTimeoutMs);
-		_tempMaster.configClosedLoopPeakOutput(Constants.kSlot_MotProf, Constants.kGains_MotProf.kPeakOutput, Constants.kTimeoutMs);
+		_rightMaster.config_kP(Constants.kSlot_MotProf, Constants.kGains_MotProf.kP, Constants.kTimeoutMs);
+		_rightMaster.config_kI(Constants.kSlot_MotProf, Constants.kGains_MotProf.kI, Constants.kTimeoutMs);
+		_rightMaster.config_kD(Constants.kSlot_MotProf, Constants.kGains_MotProf.kD, Constants.kTimeoutMs);
+		_rightMaster.config_kF(Constants.kSlot_MotProf, Constants.kGains_MotProf.kF, Constants.kTimeoutMs);
+		_rightMaster.config_IntegralZone(Constants.kSlot_MotProf, Constants.kGains_MotProf.kIzone, Constants.kTimeoutMs);
+		_rightMaster.configClosedLoopPeakOutput(Constants.kSlot_MotProf, Constants.kGains_MotProf.kPeakOutput, Constants.kTimeoutMs);
 
 		/* FPID Gains for turn servo */
-		_tempMaster.config_kP(Constants.kSlot_Turning, Constants.kGains_Turning.kP, Constants.kTimeoutMs);
-		_tempMaster.config_kI(Constants.kSlot_Turning, Constants.kGains_Turning.kI, Constants.kTimeoutMs);
-		_tempMaster.config_kD(Constants.kSlot_Turning, Constants.kGains_Turning.kD, Constants.kTimeoutMs);
-		_tempMaster.config_kF(Constants.kSlot_Turning, Constants.kGains_Turning.kF, Constants.kTimeoutMs);
-		_tempMaster.config_IntegralZone(Constants.kSlot_Turning, Constants.kGains_Turning.kIzone, Constants.kTimeoutMs);
-		_tempMaster.configClosedLoopPeakOutput(Constants.kSlot_Turning, Constants.kGains_Turning.kPeakOutput, Constants.kTimeoutMs);
+		_rightMaster.config_kP(Constants.kSlot_Turning, Constants.kGains_Turning.kP, Constants.kTimeoutMs);
+		_rightMaster.config_kI(Constants.kSlot_Turning, Constants.kGains_Turning.kI, Constants.kTimeoutMs);
+		_rightMaster.config_kD(Constants.kSlot_Turning, Constants.kGains_Turning.kD, Constants.kTimeoutMs);
+		_rightMaster.config_kF(Constants.kSlot_Turning, Constants.kGains_Turning.kF, Constants.kTimeoutMs);
+		_rightMaster.config_IntegralZone(Constants.kSlot_Turning, Constants.kGains_Turning.kIzone, Constants.kTimeoutMs);
+		_rightMaster.configClosedLoopPeakOutput(Constants.kSlot_Turning, Constants.kGains_Turning.kPeakOutput, Constants.kTimeoutMs);
 
 		/**
 		 * 1ms per loop.  PID loop can be slowed down if need be.
@@ -197,15 +178,15 @@ public class Robot extends TimedRobot {
 		 * - sensor movement is very slow causing the derivative error to be near zero.
 		 */
 		int closedLoopTimeMs = 1;
-		_tempMaster.configClosedLoopPeriod(0, closedLoopTimeMs, Constants.kTimeoutMs);
-		_tempMaster.configClosedLoopPeriod(1, closedLoopTimeMs, Constants.kTimeoutMs);
+		_rightMaster.configClosedLoopPeriod(0, closedLoopTimeMs, Constants.kTimeoutMs);
+		_rightMaster.configClosedLoopPeriod(1, closedLoopTimeMs, Constants.kTimeoutMs);
 
 		/**
 		 * configAuxPIDPolarity(boolean invert, int timeoutMs)
 		 * false means talon's local output is PID0 + PID1, and other side Talon is PID0 - PID1
 		 * true means talon's local output is PID0 - PID1, and other side Talon is PID0 + PID1
 		 */
-		_tempMaster.configAuxPIDPolarity(false, Constants.kTimeoutMs);
+		_rightMaster.configAuxPIDPolarity(false, Constants.kTimeoutMs);
 
 		/* Initialize */
 		_firstCall = true;
@@ -219,7 +200,6 @@ public class Robot extends TimedRobot {
         double turn = +1 * _gamepad.getRawAxis(2); 
         forward = Deadband(forward) * 0.5;
         turn = Deadband(turn) * 0.5;
-        _diffDrive.arcadeDrive(forward, turn);
 
 		    ButtonEvent bExecuteAction = ButtonEvent.ButtonOff;
         getButtons(btns, _gamepad);	
@@ -266,8 +246,8 @@ public class Robot extends TimedRobot {
           _motProfExample.reset();
           _motProfExample.start(finalHeading_units, bMoveForward);
         } else if (bExecuteAction == ButtonEvent.ButtonOn) {
-          _tempMaster.set(ControlMode.MotionProfileArc, _motProfExample.getSetValue().value);
-          _rightMaster.follow(_tempMaster, FollowerType.AuxOutput1);
+          _rightMaster.set(ControlMode.MotionProfileArc, _motProfExample.getSetValue().value);
+          _leftMaster.follow(_rightMaster, FollowerType.AuxOutput1);
         }
         _motProfExample.control();
       }
@@ -290,7 +270,7 @@ public class Robot extends TimedRobot {
 	}
 	
 	void neutralMotors(String reason) {
-		_tempMaster.neutralOutput();
+		_rightMaster.neutralOutput();
 		_rightMaster.neutralOutput();
 
 		if (reason != null && reason.length() > 0) {
